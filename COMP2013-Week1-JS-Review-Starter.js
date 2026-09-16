@@ -237,7 +237,7 @@ console.log(totalTuitionPaid);
  *14
  Array sort: to sort arrays ascendingly or descendingly.
  NOTE: This method changes the orginal array. If you want to avoid this, use .slice() method before sorting 
- 
+ //Only works with numbers
  */
 console.log(arr.sort((a, b) => b - a)); //descending
 console.log(arr.sort((a, b) => a - b)); //ascending
@@ -245,7 +245,7 @@ console.log(arr.sort((a, b) => a - b)); //ascending
 //sort students by paid tuition
 
 const studentsByTuition = data
-  .slice()
+  .slice()  //To copy into a new array
   .sort((a, b) => a.tuitionPaid - b.tuitionPaid);
 console.log(studentsByTuition);
 
