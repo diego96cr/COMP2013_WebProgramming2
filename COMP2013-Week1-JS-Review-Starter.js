@@ -286,3 +286,4 @@ const updatedStudent = newData.map((student) =>
   student.id === 3 ? { ...student, hasAttendedOrientation: true } : student
 ); //update student with id 3 to attended orientation if not already using the map method and ternary operator
 console.log(updatedStudent);
+console.log(updatedStudent);
