@@ -4,7 +4,7 @@ import ItemsContainer from "./ItemsContainer";
 import NavBar from "./NavBar";
 import CheckoutContainer from "./CheckoutContainer";
 import axios from "axios";
-import FormComponent from "./formComponent";
+import FormComponent from "./FormComponent";
 
 export interface ItemsContainerProps {
   products: ClothingProduct[];
@@ -48,6 +48,7 @@ export interface CheckoutContainerProps {
 
 export interface FormComponentProps {
   clothesArticle: ClothingProduct;
+  responseMessage: string;
   handleOnSubmit: (e: SubmitEvent<HTMLFormElement>) => void;
   handleOnChange: (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
@@ -56,8 +57,9 @@ export interface FormComponentProps {
 export default function ThriftHappensApp() {
   const [products, setProducts] = useState<ClothingProduct[]>([]);
   const [itemsQuantity, setItemsQuantity] = useState<ItemsQuantity[]>([]);
+  const [responseMessage, setResponseMessage] = useState<string>("");
   const [clothesArticle, setClothesArticle] = useState<ClothingProduct>({
-    id: 0,
+    id: -1,
     name: "",
     image: "",
     fit: "men",
@@ -74,7 +76,9 @@ export default function ThriftHappensApp() {
   async function getProductsFromDB() {
     try {
       const { data } = await axios.get("http://localhost:3000/data");
-      setProducts(data);
+      setProducts(
+        data.sort((a: ClothingProduct, b: ClothingProduct) => b.id - a.id),
+      );
       setItemsQuantity(
         data.map((product: ClothingProduct) => ({
           id: product.id,
@@ -91,7 +95,9 @@ export default function ThriftHappensApp() {
     async function getProductsFromDB() {
       try {
         const { data } = await axios.get("http://localhost:3000/data");
-        setProducts(data);
+        setProducts(
+          data.sort((a: ClothingProduct, b: ClothingProduct) => b.id - a.id),
+        );
         setItemsQuantity(
           data.map((product: ClothingProduct) => ({
             id: product.id,
@@ -211,9 +217,37 @@ export default function ThriftHappensApp() {
     }));
   }
 
-  function handleOnSubmit(e: SubmitEvent<HTMLFormElement>) {
+  async function handleOnSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    return;
+
+    // if the input on the form is a new article, use the POST route to create a new clothing article
+    if (clothesArticle.id === -1) {
+      try {
+        await axios
+          .post("http://localhost:3000/data", {
+            ...clothesArticle,
+            id: parseInt((Math.random() * 10000 + 50).toFixed(0)),
+          })
+          .then((response) => setResponseMessage(response.data.message));
+
+        await getProductsFromDB();
+        setClothesArticle({
+          id: -1,
+          name: "",
+          image: "",
+          fit: "men",
+          category: "hoodie",
+          color: "",
+          size: "M",
+          description: "",
+          price: 0,
+          quantity: 0,
+          itemQuantity: 0,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }
   return (
     <div>
@@ -233,6 +267,7 @@ export default function ThriftHappensApp() {
         />
         <FormComponent
           clothesArticle={clothesArticle}
+          responseMessage={responseMessage}
           handleOnChange={handleOnChange}
           handleOnSubmit={handleOnSubmit}
         />
